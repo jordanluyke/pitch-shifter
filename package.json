@@ -1,0 +1,19 @@
+{
+  "name": "pitch-shifter",
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "shift.js",
+  "scripts": {
+    "shift": "node shift.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ffmpeg-static": "5.2.0"
+  },
+  "allowScripts": {
+    "ffmpeg-static@5.2.0": true
+  }
+}
