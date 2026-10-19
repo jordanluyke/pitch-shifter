@@ -1,6 +1,6 @@
 # Pitch Shifter
 
-Pitch-shifts MP3s from A440 to A444 (C528, ~15.67 cents).
+Pitch-shifts audio from A440 to A444 (C528, ~15.67 cents). Output format follows the input extension: MP3, WAV, or M4A.
 
 ## Setup
 
@@ -12,7 +12,7 @@ Uses `ffmpeg-static` — no system FFmpeg install.
 
 ## Usage
 
-Drop `.mp3` files in `input/`, then:
+Drop `.mp3`, `.wav`, or `.m4a` files in `input/`, then:
 
 ```bash
 npm run shift
@@ -26,6 +26,7 @@ node shift.js ./songs ./out
 
 ## Output
 
-- MP3, 320 kbps CBR, 48 kHz
+- Same container as the source, 48 kHz
+- MP3 and M4A at 320 kbps; WAV as 16-bit PCM
 - Channels and tags copied from the source
 - Duration unchanged

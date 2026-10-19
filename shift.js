@@ -6,6 +6,12 @@ import ffmpegPath from 'ffmpeg-static'
 const RATIO = 444 / 440
 const FILTER = `aresample=48000,asetrate=48000*${RATIO},aresample=48000,atempo=${1 / RATIO}`
 
+const ENCODE = {
+    '.mp3': ['-b:a', '320k'],
+    '.wav': ['-c:a', 'pcm_s16le'],
+    '.m4a': ['-c:a', 'aac', '-b:a', '320k'],
+}
+
 const inputDir = path.resolve(process.argv[2] || 'input')
 const outputDir = path.resolve(process.argv[3] || 'output')
 
@@ -30,17 +36,18 @@ async function main() {
 
     const files = fs
         .readdirSync(inputDir)
-        .filter((name) => name.toLowerCase().endsWith('.mp3'))
+        .filter((name) => ENCODE[path.extname(name).toLowerCase()])
         .sort()
 
     if (files.length === 0) {
-        console.log(`No MP3 files in ${inputDir}`)
+        console.log(`No MP3, WAV, or M4A files in ${inputDir}`)
         return
     }
 
     for (const name of files) {
         const inputPath = path.join(inputDir, name)
         const outputPath = path.join(outputDir, name)
+        const encode = ENCODE[path.extname(name).toLowerCase()]
         console.log(`Shifting ${name}...`)
         await runFfmpeg([
             '-y',
@@ -50,8 +57,7 @@ async function main() {
             '0',
             '-af',
             FILTER,
-            '-b:a',
-            '320k',
+            ...encode,
             outputPath,
         ])
         console.log(`Wrote ${outputPath}`)
