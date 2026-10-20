@@ -8,8 +8,9 @@ Small Node ESM script that pitch-shifts audio from A440 to A444 (C528). Ratio is
 
 ```bash
 npm i
-npm run shift              # input/ → output/
-node shift.js [in] [out]   # optional dirs
+npm run shift            # input/ → output/; skip existing
+npm run shift:overwrite  # replace existing outputs
+node shift.js [in] [out]      # optional dirs; --overwrite anywhere
 ```
 
 ## Layout

@@ -12,8 +12,11 @@ const ENCODE = {
     '.m4a': ['-c:a', 'aac', '-b:a', '320k'],
 }
 
-const inputDir = path.resolve(process.argv[2] || 'input')
-const outputDir = path.resolve(process.argv[3] || 'output')
+const args = process.argv.slice(2).filter((arg) => arg !== '--')
+const overwrite = args.includes('--overwrite')
+const dirs = args.filter((arg) => arg !== '--overwrite')
+const inputDir = path.resolve(dirs[0] || 'input')
+const outputDir = path.resolve(dirs[1] || 'output')
 
 function runFfmpeg(args) {
     return new Promise((resolve, reject) => {
@@ -44,9 +47,15 @@ async function main() {
         return
     }
 
+    let written = 0
+
     for (const name of files) {
         const inputPath = path.join(inputDir, name)
         const outputPath = path.join(outputDir, name)
+        if (!overwrite && fs.existsSync(outputPath)) {
+            console.log(`Skipping ${name} (already exists)`)
+            continue
+        }
         const encode = ENCODE[path.extname(name).toLowerCase()]
         console.log(`Shifting ${name}...`)
         await runFfmpeg([
@@ -61,9 +70,10 @@ async function main() {
             outputPath,
         ])
         console.log(`Wrote ${outputPath}`)
+        written++
     }
 
-    console.log(`Done. ${files.length} file(s) written to ${outputDir}`)
+    console.log(`Done. ${written} file(s) written to ${outputDir}`)
 }
 
 main().catch((err) => {

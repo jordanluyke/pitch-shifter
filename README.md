@@ -18,7 +18,13 @@ Drop `.mp3`, `.wav`, or `.m4a` files in `input/`, then:
 npm run shift
 ```
 
-Writes same-named files to `output/`. Optional dirs:
+Writes same-named files to `output/`. Existing files are left in place. To replace them:
+
+```bash
+npm run shift:overwrite
+```
+
+Optional dirs:
 
 ```bash
 node shift.js ./songs ./out
