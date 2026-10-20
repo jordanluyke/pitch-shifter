@@ -29,6 +29,15 @@ function runFfmpeg(args) {
     })
 }
 
+function outputExists(filePath) {
+    try {
+        return fs.statSync(filePath).size > 0
+    } catch (err) {
+        if (err.code === 'ENOENT') return false
+        throw err
+    }
+}
+
 async function main() {
     if (!fs.existsSync(inputDir)) {
         console.error(`Input folder not found: ${inputDir}`)
@@ -52,23 +61,39 @@ async function main() {
     for (const name of files) {
         const inputPath = path.join(inputDir, name)
         const outputPath = path.join(outputDir, name)
-        if (!overwrite && fs.existsSync(outputPath)) {
+        if (!overwrite && outputExists(outputPath)) {
             console.log(`Skipping ${name} (already exists)`)
             continue
         }
         const encode = ENCODE[path.extname(name).toLowerCase()]
+        // Keep the real extension so ffmpeg picks the right muxer. Rename into place
+        // only after success — a failed encode must not leave a file the next run skips.
+        const tmpPath = path.join(outputDir, `.${name}.${process.pid}.tmp${path.extname(name)}`)
         console.log(`Shifting ${name}...`)
-        await runFfmpeg([
-            '-y',
-            '-i',
-            inputPath,
-            '-map_metadata',
-            '0',
-            '-af',
-            FILTER,
-            ...encode,
-            outputPath,
-        ])
+        try {
+            await runFfmpeg([
+                '-y',
+                '-i',
+                inputPath,
+                '-map_metadata',
+                '0',
+                // Copy attached artwork. The default encoder is h264, which the m4a muxer rejects.
+                '-c:v',
+                'copy',
+                '-af',
+                FILTER,
+                ...encode,
+                tmpPath,
+            ])
+            fs.renameSync(tmpPath, outputPath)
+        } catch (err) {
+            try {
+                fs.rmSync(tmpPath, { force: true })
+            } catch {
+                // Keep the ffmpeg error.
+            }
+            throw err
+        }
         console.log(`Wrote ${outputPath}`)
         written++
     }
