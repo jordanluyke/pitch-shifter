@@ -10,7 +10,9 @@ const ENCODE = {
     '.mp3': ['-b:a', '320k'],
     '.wav': ['-c:a', 'pcm_s16le'],
     '.m4a': ['-c:a', 'aac', '-b:a', '320k'],
-    '.mp4': ['-map', '0', '-c', 'copy', '-c:a', 'aac', '-b:a', '320k'],
+    // Copy video, audio, and subtitles, but not input data streams. A timecode
+    // (tmcd) or mebx track is codec "none", and the mp4 muxer rejects that copy.
+    '.mp4': ['-map', '0', '-dn', '-c', 'copy', '-c:a', 'aac', '-b:a', '320k'],
 }
 
 const args = process.argv.slice(2).filter((arg) => arg !== '--')
