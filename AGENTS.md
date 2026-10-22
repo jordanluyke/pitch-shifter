@@ -25,7 +25,7 @@ node shift.js [in] [out]      # optional dirs; --overwrite anywhere
 - Keep the script small. Spawn `ffmpeg-static` directly; no wrapper libs.
 - Filter: `aresample=48000,asetrate=48000*(444/440),aresample=48000,atempo=440/444`
 - Copy tags with `-map_metadata 0`.
-- Encode by extension: MP3 and M4A at `-b:a 320k` (M4A as AAC); WAV as `pcm_s16le`; MP4 copies all streams and re-encodes audio as AAC at `-b:a 320k`.
+- Encode by extension: MP3 and M4A at `-b:a 320k` (M4A as AAC); WAV as `pcm_s16le`; MP4 copies video, audio, and subtitles and re-encodes audio as AAC at `-b:a 320k`. Leave input data streams unmapped so a timecode track cannot fail the muxer. Timecode and chapters are written back from metadata.
 - Top-level of the input dir only (`.mp3`, `.wav`, `.m4a`, `.mp4`, any case).
 
 ## Boundaries
