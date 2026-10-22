@@ -10,6 +10,7 @@ const ENCODE = {
     '.mp3': ['-b:a', '320k'],
     '.wav': ['-c:a', 'pcm_s16le'],
     '.m4a': ['-c:a', 'aac', '-b:a', '320k'],
+    '.mp4': ['-map', '0', '-c', 'copy', '-c:a', 'aac', '-b:a', '320k'],
 }
 
 const args = process.argv.slice(2).filter((arg) => arg !== '--')
@@ -43,7 +44,7 @@ async function main() {
         .sort()
 
     if (files.length === 0) {
-        console.log(`No MP3, WAV, or M4A files in ${inputDir}`)
+        console.log(`No MP3, WAV, M4A, or MP4 files in ${inputDir}`)
         return
     }
 

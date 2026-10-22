@@ -2,7 +2,7 @@
 
 ## Project
 
-Small Node ESM script that pitch-shifts audio from A440 to A444 (C528). Ratio is `444/440` (~15.67 cents). Duration is preserved via `asetrate` + `atempo`. FFmpeg comes from `ffmpeg-static`. Input extension selects the output: `.mp3` → MP3, `.wav` → WAV, `.m4a` → M4A.
+Small Node ESM script that pitch-shifts audio from A440 to A444 (C528). Ratio is `444/440` (~15.67 cents). Duration is preserved via `asetrate` + `atempo`. FFmpeg comes from `ffmpeg-static`. Input extension selects the output: `.mp3` → MP3, `.wav` → WAV, `.m4a` → M4A, `.mp4` → MP4. For MP4, video is copied and only the audio is re-encoded.
 
 ## Commands
 
@@ -25,8 +25,8 @@ node shift.js [in] [out]      # optional dirs; --overwrite anywhere
 - Keep the script small. Spawn `ffmpeg-static` directly; no wrapper libs.
 - Filter: `aresample=48000,asetrate=48000*(444/440),aresample=48000,atempo=440/444`
 - Copy tags with `-map_metadata 0`.
-- Encode by extension: MP3 and M4A at `-b:a 320k` (M4A as AAC); WAV as `pcm_s16le`.
-- Top-level of the input dir only (`.mp3`, `.wav`, `.m4a`, any case).
+- Encode by extension: MP3 and M4A at `-b:a 320k` (M4A as AAC); WAV as `pcm_s16le`; MP4 copies all streams and re-encodes audio as AAC at `-b:a 320k`.
+- Top-level of the input dir only (`.mp3`, `.wav`, `.m4a`, `.mp4`, any case).
 
 ## Boundaries
 
