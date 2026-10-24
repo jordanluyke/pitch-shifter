@@ -65,6 +65,10 @@ async function main() {
             inputPath,
             '-map_metadata',
             '0',
+            // iTunSMPB counts samples at the source rate. Output is 48 kHz, so a
+            // copied tag makes players that honor it stop early (~8% from 44.1 kHz).
+            '-metadata',
+            'iTunSMPB=',
             '-af',
             FILTER,
             ...encode,
