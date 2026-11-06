@@ -30,6 +30,21 @@ function runFfmpeg(args) {
     })
 }
 
+function sameFile(a, b) {
+    const stat = (file) => {
+        try {
+            return fs.statSync(file, { bigint: true })
+        } catch (err) {
+            if (err.code === 'ENOENT') return null
+            throw err
+        }
+    }
+    const left = stat(a)
+    const right = stat(b)
+    if (!left || !right) return false
+    return left.dev === right.dev && left.ino === right.ino
+}
+
 async function main() {
     if (!fs.existsSync(inputDir)) {
         console.error(`Input folder not found: ${inputDir}`)
@@ -58,18 +73,30 @@ async function main() {
             continue
         }
         const encode = ENCODE[path.extname(name).toLowerCase()]
+        // A hard link or symlink shares the input inode. ffmpeg -y truncates it
+        // while reading and can still exit 0, keeping only a short prefix.
+        const aliased = sameFile(inputPath, outputPath)
+        const destPath = aliased
+            ? path.join(outputDir, `.${name}.${process.pid}.tmp${path.extname(name)}`)
+            : outputPath
         console.log(`Shifting ${name}...`)
-        await runFfmpeg([
-            '-y',
-            '-i',
-            inputPath,
-            '-map_metadata',
-            '0',
-            '-af',
-            FILTER,
-            ...encode,
-            outputPath,
-        ])
+        try {
+            await runFfmpeg([
+                '-y',
+                '-i',
+                inputPath,
+                '-map_metadata',
+                '0',
+                '-af',
+                FILTER,
+                ...encode,
+                destPath,
+            ])
+            if (aliased) fs.renameSync(destPath, outputPath)
+        } catch (err) {
+            if (aliased) fs.rmSync(destPath, { force: true })
+            throw err
+        }
         console.log(`Wrote ${outputPath}`)
         written++
     }
